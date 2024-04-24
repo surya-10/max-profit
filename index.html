@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building Profit Calculator</title>
+</head>
+<body>
+<h2>Building Profit Calculator</h2>
+<label for="timeInput">Enter time:</label>
+<input type="number" id="timeInput" name="timeInput" min="1">
+<button onclick="calculate()">Calculate</button>
+<div id="output"></div>
+
+<script>
+function calculate() {
+    const time = parseInt(document.getElementById("timeInput").value);
+
+    const buildings = [
+        { name: "Pub", time: 4, earning: 1000 },
+        { name: "Theatre", time: 5, earning: 1500 },
+        { name: "Commercial Park", time: 10, earning: 3000 }
+    ];
+
+    let maxProfit = 0;
+    let allZero = true;
+    let bestWays = [];
+    let possibleWays = [];
+
+    for (const building of buildings) {
+        let remainingTime = time;
+        let currentProfit = 0;
+        let currentWay = {};
+        currentWay[building.name] = 0; 
+        
+        while (remainingTime >= building.time) {
+            currentProfit += (remainingTime - building.time) * building.earning;
+            currentWay[building.name]++;
+            remainingTime -= building.time;
+        }
+
+        if (currentProfit > maxProfit) {
+            maxProfit = currentProfit;
+            allZero = false; 
+            bestWays = [{ way: { ...currentWay }, profit: currentProfit }];
+        } else if (currentProfit === maxProfit) {
+            allZero = false;
+            bestWays.push({ way: { ...currentWay }, profit: currentProfit });
+        }
+
+        possibleWays.push({ way: currentWay, profit: currentProfit });
+    }
+
+    let output = "<h3>Possible Ways:</h3>";
+    let hasPossibleWays = false;
+
+    possibleWays.forEach(way => {
+        if (way.profit > 0) {
+            hasPossibleWays = true;
+            let formattedWay = `T: ${way.way["Theatre"] || 0} P: ${way.way["Pub"] || 0} C: ${way.way["Commercial Park"] || 0}`;
+            output += `<p>${formattedWay}, $${way.profit}</p>`;
+        }
+    });
+
+    if (!hasPossibleWays) {
+        output += "<p>There are No Possible Ways</p>";
+        if (allZero) {
+            output += "<h3>Best Way(s):</h3>";
+            buildings.forEach(building => {
+                output += `<p>T: 0 P: 0 C: 0, $0</p>`;
+            });
+        }
+    } else {
+        if (allZero) {
+            output += "<h3>Best Way(s):</h3>";
+            bestWays.forEach(bestWay => {
+                output += `<p>T: 0 P: 0 C: 0, $0</p>`;
+            });
+        } else {
+            output += "<h3>Best Way(s):</h3>";
+            bestWays.forEach(bestWay => {
+                let formattedBestWay = `T: ${bestWay.way["Theatre"] || 0} P: ${bestWay.way["Pub"] || 0} C: ${bestWay.way["Commercial Park"] || 0}`;
+                output += `<p>${formattedBestWay}, $${bestWay.profit}</p>`;
+            });
+        }
+    }
+    
+    document.getElementById("output").innerHTML = output;
+}
+</script>
+</body>
+</html>
